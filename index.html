@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>화면 스크롤 레이아웃</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500&display=swap');
+    *{margin:0px;padding:0px;}
+    ul, ol, li{list-style:none;}
+    a{color:#333;text-decoration:none;}
+    body{
+      font-family:'Noto Sans KR', arial, sans-serif;
+      font-size:12px;
+      color:#333;
+    }
+    /* 헤더서식 */
+    header{
+      width:100%;height:150px;
+      position:absolute;
+    }
+    header > h1{
+      width:250px;
+      position:absolute;
+      left:3%; top:42px;
+    }
+    header h1 img{width:100%;}
+
+     /* 세로 스크롤값이 변할때 header적용할 서식 */
+    .act{
+      position:fixed !important;
+      top:0px;left:0px;
+      background:orange;
+    }
+
+    /* 내비게이션 서식 */
+    .gnb{
+      position:absolute;
+      right:5%;top:60px;
+      width:700px;
+    }
+    .gnb > ul{
+      display:flex; /* 자식요소 li태그를 가로, 세로배치 */
+      justify-content: space-between; /* 좌,우 동일하게 간격을 유지하며 배치함 */
+    }
+    .gnb a{color:#fff;font-size:16px;}
+    /* .gnb a:hover{text-decoration:underline;} */
+    .gnb li:hover a::after{
+      display:block;
+      content:"";
+      height:2px;
+      background:#fff;
+    }
+
+   
+
+/* 메인콘텐츠 서식 */
+    main{}
+    #visual h2{display:none;}
+    #visual img{width:100%;}
+    section h2{
+      color:#fff;
+      font-size:30px;
+      padding:20px 30px;
+    }
+
+/* 뉴스콘텐츠, 탭콘텐츠, 제품소개, 이벤트 서식 */
+#news > article, #tab_con > article, #product > article, #event > article{
+  width:1280px;height:800px;
+  margin:40px auto;
+  background:#f36f21;
+}
+
+
+    #gallery{
+      width: 100%;
+      background-color:#f36f21;
+      padding-bottom:50px;
+    }
+    #gallery > article{
+      width:1280px;
+      margin:0px auto;
+    }
+    .girl {
+			display: grid;
+			grid-template-rows: 270px 270px 270px;
+			padding: 20px;
+			grid-gap: 20px;
+			grid-template-areas:
+				"g01 g03 g04"
+				"g02 g03 g05"
+				"g06 g07 g08";
+		}
+
+		figure {
+			overflow: hidden;
+		}
+
+		figure:hover figcaption {
+			transform: translate(0px, -84px);
+		}
+
+		.girl figcaption {
+			height: 80px;
+			background-color: #111111;
+			position: relative;
+			transition: 0.5s;
+		}
+
+		figcaption h6 {
+			font-size: 20px;
+			font-weight: bold;
+			color: #f36f21;
+			padding: 10px 0px 5px 20px;
+		}
+
+		figcaption p {
+			font-size: 10px;
+			color: #ffffff;
+			padding: 5px 0px 0px 20px;
+		}
+
+		figcaption span {
+			border: 1px solid #ffffff;
+			font-size: 12px;
+			color: #ffffff;
+			padding: 5px;
+			position: absolute;
+			right: 20px;
+			bottom: 15px;
+		}
+
+		.girl img {
+			width: 100%;
+		}
+
+		.girl figure:first-child {			grid-area: g01;		}
+		.girl figure:nth-child(2) {			grid-area: g02;		}
+		.girl figure:nth-child(3) {			grid-area: g03;		}
+		.girl figure:nth-child(4) {			grid-area: g04;		}
+		.girl figure:nth-child(5) {			grid-area: g05;		}
+		.girl figure:nth-child(6) {			grid-area: g06;		}
+		.girl figure:nth-child(7) {			grid-area: g07;		}
+		.girl figure:last-child {			grid-area: g08;		}
+
+    .more_box{
+      text-align:center;
+    }
+    .more{
+      background:#fff;
+      font-size:14px;
+      padding:6px 20px;
+      border-radius: 10px;;
+    }
+
+    /* 갤러리 추가콘텐츠 서식 */
+    #list{
+			width:1280px;
+			margin:0px auto;
+			text-align:center;
+			overflow:auto;
+		}
+    #list ul{
+      display:flex;
+      flex-wrap: wrap;
+      justify-content: space-around;
+    }
+		#list li{padding:15px 0px;}
+		#list li img{display:block;float:left;}
+
+    /* 가로슬라이드 배너서식 */
+    #b_box{
+      width:1200px;margin:0px auto;
+    }
+    .banner{
+      width:1200px;
+      height:122px;
+      margin:0px auto;
+      border:3px solid #000;
+      overflow:hidden;
+    }
+    .banner > ul{
+      display:flex;
+      margin-left:-355px;
+    }
+    .banner img{vertical-align: top;}
+  </style>
+  <!--  제이쿼리 라이브러리 -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script>
+    $(function(){
+
+      $(window).scroll(function(){
+
+        let sPos = $(this).scrollTop(); //현재 윈도우 세로 스크롤 값을 변수에 담는다.
+        console.log(sPos);
+
+        if(sPos>=800){ //스크롤 값이 800이상일때
+          $('header').addClass('act'); //헤더에 서식을 적용하여 고정시키고
+        }else{ //그렇지 않으면
+          $('header').removeClass('act'); //헤더에 act서식을 제거하여 다시 원위치로
+        }
+
+      });
+
+      // nav li의 인덱스 값 구하여 변수에 담기
+      let nav = $('header .gnb li');
+      //메뉴를 클릭시 각각 해당 인덱스 값 구하기
+      nav.click(function(){ //메뉴목록 클릭시
+        let n = $(this).index()+1; //해당 인덱스값을 변수에 담아서
+        console.log(n); //출력해본다.
+
+        //각각 section의 n번를 선택하여 화면상단으로 끌어 올린다.
+
+        $('html, body').animate({scrollTop:$('main section').eq(n).offset().top},500);
+
+        return false; //새로고침 방지
+      });
+
+      // 더보기 버튼을 클릭하면 ajax통신에 의해서 json데이터를 불러와 #list스타일 적용하여 나오게
+      $('.more').click(function(){
+        $(this).hide(); //더보기 버튼 숨기기
+
+        $.ajax({
+          url:"js/product.json",
+          type:"post",
+          dataType:'json',
+          success:function(result){
+            let t='<ul>';
+            $.each(result.product,function(i,e){
+              t+="<li><img src='./images/"+e.path+"' alt='"+e.tit+"'></li>";
+            });
+            t+="</ul>";
+            $('#list').html(t);
+          }
+        });
+        return false;
+      });
+    });
+  </script>
+</head>
+<body>
+  
+  <!-- 상단 헤더영역 시작  -->
+  <header>
+    <h1>
+      <a href="index.html" title="메인페이지로 바로가기">
+        <img src="./images/logo2.png" alt="상단로고">
+      </a>
+    </h1>
+
+    <nav class="gnb">
+      <!-- ul>li*5>a[href=# title]  -->
+      <ul>
+        <li><a href="#tab_con" title="미에로">미에로</a></li>
+
+        <li><a href="#product" title="제품소개">제품소개</a></li>
+
+        <li><a href="#gallery" title="미에로 스토리">미에로 스토리</a></li>
+
+        <li><a href="#event" title="미에로 이벤트">미에로 이벤트</a></li>
+
+        <li><a href="#news" title="공지사항">공지사항</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- 메인콘텐츠 영역 시작 -->
+  <main>
+    <section id="visual">
+      <article>
+        <h2>비주얼 영역</h2>
+        <img src='./images/visual01.jpg' alt="">
+      </article>
+    </section>
+
+    <section id="news">
+      <article>
+        <h2>뉴스 콘텐츠 영역</h2>
+      </article>
+    </section>
+
+    <section id="tab_con">
+      <article>
+        <h2>탭메뉴 콘텐츠 영역</h2>
+      </article>
+    </section>
+
+    <section id="product">
+      <article>
+        <h2>제품소개</h2>
+      </article>
+    </section>
+
+    <section id="event">
+      <article>
+        <h2>뉴스 콘텐츠 영역</h2>
+      </article>
+    </section>
+
+    <section id="gallery">
+      <article>
+        <h2>스토리 갤러리 영역</h2>
+        <div class="girl">
+          <figure>
+            <a href="#" title="">
+              <img src="./images/1.jpg" alt="">
+            </a>
+            <figcaption>
+              <a href="#" title="">
+                <h6>TV광고</h6>
+                <p>2020</p>
+                <span>영상보기</span>
+              </a>
+            </figcaption>
+          </figure>
+    
+          <figure>
+            <a href="#" title="">
+              <img src="./images/2.png" alt="">
+            </a>
+            <figcaption>
+              <a href="#" title="">
+                <h6>TV광고</h6>
+                <p>2019</p>
+                <span>영상보기</span>
+              </a>
+            </figcaption>
+          </figure>
+    
+          <figure>
+            <a href="#" title="">
+              <img src="./images/4.png" alt="">
+            </a>
+            <figcaption>
+              <a href="#" title="">
+                <h6>인쇄광고</h6>
+                <p>2020</p>
+              </a>
+            </figcaption>
+          </figure>
+    
+          <figure>
+            <a href="#" title="">
+              <img src="./images/3.jpg" alt="">
+            </a>
+            <figcaption>
+              <a href="#" title="">
+                <h6>인쇄광고</h6>
+                <p>2019</p>
+              </a>
+            </figcaption>
+          </figure>
+    
+          <figure>
+            <a href="#" title="">
+              <img src="./images/5.png" alt="">
+            </a>
+            <figcaption>
+              <a href="#" title="">
+                <h6>인쇄광고</h6>
+                <p>2018</p>
+              </a>
+            </figcaption>
+          </figure>
+    
+          <figure>
+            <a href="#" title="">
+              <img src="./images/6.jpg" alt="">
+            </a>
+            <figcaption>
+              <a href="#" title="">
+                <h6>TV광고</h6>
+                <p>2018</p>
+                <span>영상보기</span>
+              </a>
+            </figcaption>
+          </figure>
+    
+          <figure>
+            <a href="#" title="">
+              <img src="./images/7.png" alt="">
+            </a>
+            <figcaption>
+              <a href="#" title="">
+                <h6>프로모션</h6>
+                <p>2020</p>
+                <span>영상보기</span>
+              </a>
+            </figcaption>
+          </figure>
+    
+          <figure>
+            <a href="#" title="">
+              <img src="./images/8.jpg" alt="">
+            </a>
+            <figcaption>
+              <a href="#" title="">
+                <h6>프로모션</h6>
+                <p>2017</p>
+                <span>영상보기</span>
+              </a>
+            </figcaption>
+          </figure>
+        </div>
+        
+        <p class="more_box"><a href="#" title="더보기" class="more">더보기</a></p>
+        <div id='list'></div>
+
+      </article>
+    </section>
+  </main>
+
+  <!-- 푸터영역 시작 -->
+  <footer>
+    <div id="b_box"></div>
+    <address>Copyright &copy;2021 미에로 화이버 allrights reserved.</address>
+  </footer>
+
+  <script>
+    $(function(){
+
+      $('#b_box').load('f_banner.html');
+
+      //변수값 
+      let mleft = -355;
+
+      function move(){
+        $('.banner > ul').css('margin-left',mleft);
+        mleft-=2;
+        console.log(mleft);
+        if(mleft>=-357){
+          $('.banner ul li').first().appendTo('.banner ul');
+        }else if(mleft==-711){
+          mleft=-355
+        }
+      }
+
+      let Timer = setInterval(move,20);
+
+      $('#b_box').hover(function(){ //배너에 마우스 오버시
+        clearInterval(Timer); //시간을 제거하여 멈추게하고
+      },function(){ //다시 마우스 아웃시
+        Timer = setInterval(move,20); //시간을 넣어서 움직이게 한다.
+      });
+    });
+  </script>
+</body>
+</html>
